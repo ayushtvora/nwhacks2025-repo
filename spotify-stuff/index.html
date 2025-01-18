@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Something Else</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1db954;
+            padding: 20px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        main {
+            margin: 20px;
+        }
+        #song-name {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        button {
+            background-color: #1db954;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #17a74c;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Something Else</h1>
+    </header>
+    <main>
+        <div id="song-name">Loading song...</div>
+        <div class="controls">
+            <button id="previous">Previous</button>
+            <button id="play-pause">Play/Pause</button>
+            <button id="forward">Forward</button>
+        </div>
+    </main>
+    <script>
+        // Replace these with actual Spotify API integration later
+        document.getElementById('play-pause').addEventListener('click', () => {
+            alert('Play/Pause button clicked!');
+        });
+        document.getElementById('previous').addEventListener('click', () => {
+            alert('Previous button clicked!');
+        });
+        document.getElementById('forward').addEventListener('click', () => {
+            alert('Forward button clicked!');
+        });
+
+        // Function to update the song name
+        function updateSongName(songName) {
+            document.getElementById('song-name').innerText = songName;
+        }
+
+        // Example usage (replace this with dynamic updates from your backend)
+        setTimeout(() => {
+            updateSongName('Song Name: Example Track');
+        }, 1000);
+    </script>
+</body>
+</html>
