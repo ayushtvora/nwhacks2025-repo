@@ -99,6 +99,12 @@ def volume_down():
         return jsonify({'error': 'No active playback found.'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/receive_data', methods=['POST'])
+def receive_data():
+    data = request.json  # Get the JSON data sent from the Python script
+    print(f"Received data: {data}")
+    return jsonify({"status": "success", "message": "Data received!"}), 200
 
 
 if __name__ == "__main__":
