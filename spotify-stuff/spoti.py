@@ -15,6 +15,7 @@ buffer = np.array([])
 N = 10
 N_local = 3
 THRESHOLD = 10
+distance = 0
 # 0: no action, 1: next, 2: previous, 3: pause, 4: play, 5: volume up, 6: volume down
 actions = {0: "No action", 1: "Next", 2: "Previous", 3: "Pause", 4: "Play", 5: "Volume up", 6: "Volume down"}
 last_action =  {"action": actions[0], "time": datetime.now()}
@@ -49,7 +50,10 @@ def home():
 @app.route('/last_action', methods=['GET'])
 def get_last_action():
     """Endpoint to return the last known action."""
-    return jsonify({"last_action": last_action["action"]})
+    playback = sp.current_playback()
+    if playback:
+        current_volume = playback['device']['volume_percent']
+    return jsonify({"last_action": last_action["action"], "volume": current_volume})
 
 
 @app.route('/current_song', methods=['GET'])
@@ -75,10 +79,10 @@ def play_pause():
         if playback and playback['is_playing']:
             sp.pause_playback()
             last_action["action"] = actions[3]
-            return jsonify({'status': f'{last_action["actions"]}'})
+            return jsonify({'status': f'{last_action["action"]}'})
         sp.start_playback()
         last_action["action"] = actions[4]
-        return jsonify({'status': f'{last_action["actions"]}'})
+        return jsonify({'status': f'{last_action["action"]}'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -89,7 +93,7 @@ def skip_song():
     try:
         sp.next_track()
         last_action["action"] = actions[1]
-        return jsonify({'status': f'{last_action["actions"]}'})
+        return jsonify({'status': f'{last_action["action"]}'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -100,7 +104,7 @@ def previous_song():
     try:
         sp.previous_track()
         last_action["action"] = actions[2]
-        return jsonify({'status': f'{last_action["actions"]}'})
+        return jsonify({'status': f'{last_action["action"]}'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -115,8 +119,8 @@ def volume_up():
             new_volume = min(current_volume + 10, 100)
 
             sp.volume(new_volume)
-            last_action["actions"] = actions[5]
-            return jsonify({'status': f'{last_action["actions"]}'})
+            last_action["action"] = actions[5]
+            return jsonify({'status': f'{last_action["action"]}'})
         return jsonify({'error': 'No active playback found.'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -132,7 +136,7 @@ def volume_down():
             new_volume = max(current_volume - 10, 0)
             sp.volume(new_volume)
             last_action["action"] = actions[6]
-            return jsonify({'status': f'{last_action["actions"]}'})
+            return jsonify({'status': f'{last_action["action"]}'})
         return jsonify({'error': 'No active playback found.'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500

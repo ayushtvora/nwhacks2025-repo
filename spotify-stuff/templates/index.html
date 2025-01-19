@@ -73,6 +73,9 @@
     <main>
         <div id="song-info">Loading current song...</div>
         <div id="album-img"></div>
+        
+        <p>Volume: <span id="volume-percentage">--%</span></p>
+
         <div class="controls">
             <img class = "playback-icon" type="image" src="https://i.ibb.co/wzxJYdw/volDown.png" onclick="controlPlayback('/volume_up')">
             
@@ -110,6 +113,7 @@
         }
 
         async function controlPlayback(endpoint) {
+            const params = new URLSearchParams({ avg: 100 });
             const response = await fetch(endpoint, { method: 'POST' });
             const data = await response.json();
             const actionLog = document.getElementById('action-log');
@@ -120,19 +124,41 @@
         }
 
             // Function to fetch and update the last action
+        // function fetchLastAction() {
+        //     fetch('/last_action')
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             if (data.last_action) {
+        //                 lastKnownAction = data.last_action; // Update last known action
+        //             }
+        //             document.getElementById('last-action').textContent = lastKnownAction;
+        //         })
+        //         .catch(error => {
+        //             console.error('Error fetching last action:', error);
+        //         });
+        // }
+
         function fetchLastAction() {
             fetch('/last_action')
                 .then(response => response.json())
                 .then(data => {
                     if (data.last_action) {
                         lastKnownAction = data.last_action; // Update last known action
+                        document.getElementById('last-action').textContent = lastKnownAction;
                     }
-                    document.getElementById('last-action').textContent = lastKnownAction;
+
+                    if (data.volume !== undefined) {
+                        document.getElementById('volume-percentage').textContent = `${data.volume}%`;
+                    } else {
+                        document.getElementById('volume-percentage').textContent = '--%';
+                    }
+
+
                 })
                 .catch(error => {
                     console.error('Error fetching last action:', error);
                 });
-        }
+            }
 
         function togglePlayPause(button) {
             const isPlaying = button.src.includes('pause.png');

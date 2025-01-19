@@ -13,7 +13,6 @@ baud_rate = 9600  # Match the Arduino's baud rate
 flask_url = "http://localhost:8000"
 
 buffer = []
-hand_flag = False
 N = 8
 THRESHOLD = 4
 SMALL = 100
@@ -44,6 +43,8 @@ try:
             # Read a line from the serial port
             try:
                 line = float(ser.readline().decode('utf-8').strip())
+                if line > SMALL:
+                    continue
             except ValueError:
                 continue
 
@@ -87,10 +88,10 @@ try:
             
             if avg < PAUSE_SMALL: # pause
                 predicted_action = actions[3]
-            elif deriv > THRESHOLD: # up -> next
-                predicted_action = actions[1]
-            elif deriv < -THRESHOLD: # down -> previous
+            elif deriv > THRESHOLD: # up -> previous
                 predicted_action = actions[2]
+            elif deriv < -THRESHOLD: # down -> next
+                predicted_action = actions[1]
             else:
                 predicted_action = actions[0]
 
@@ -111,12 +112,14 @@ try:
                 match last_action["action"]:
                     case "Next": 
                         print("next")
+                        previous_flag = False
                         response = requests.post(f"{flask_url}/skip_song")
-                    case "Previous":
-                        print("previous")
-                        response = requests.post(f"{flask_url}/previous_song")
+                    # case "Previous":
+                    #     print("previous")
+                    #     response = requests.post(f"{flask_url}/previous_song")
                     case "Pause":
                         print("pause")
+                        previous_flag = False
                         response = requests.post(f"{flask_url}/play_pause")
                     case _:
                         continue
