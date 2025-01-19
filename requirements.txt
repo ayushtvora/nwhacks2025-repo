@@ -1,0 +1,8 @@
+flask
+spotipy
+spotipy.oauth2
+scipy
+dotenv
+numpy
+serial
+requests
