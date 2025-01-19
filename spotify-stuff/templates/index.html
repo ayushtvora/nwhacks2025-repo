@@ -57,10 +57,11 @@
             color: #cccccc;
         }
         .playback-icon {
-            cursor: pointer;   
+            cursor: pointer;
+            transform: scale(0.8);   
         }
         .playback-icon:hover {
-            transform: scale(1.2); 
+            transform: scale(1.0); 
             transition: transform 0.1s ease-in-out; 
         }
     </style>
@@ -71,36 +72,38 @@
     </header>
     <main>
         <div id="song-info">Loading current song...</div>
+        <div id="album-img"></div>
         <div class="controls">
-            <!-- wrik image: https://shorturl.at/JSlKi-->
-
-            <img class = "playback-icon" type="image" src="https://shorturl.at/JSlKi" onclick="controlPlayback('/play_pause')">
-            
-            <button onclick="controlPlayback('/volume_up')">Volume Up</button>
+            <img class = "playback-icon" type="image" src="https://i.ibb.co/wzxJYdw/volDown.png" onclick="controlPlayback('/volume_up')">
             
             <div class="centre style:flex">
-                <button onclick="controlPlayback('/previous_song')">Previous</button>
-                <button onclick="controlPlayback('/play_pause')">Play/Pause</button>
-                <button onclick="controlPlayback('/skip_song')">Next</button>
+                <img class = "playback-icon" type="image" src="https://i.ibb.co/YkWrnzC/rewind.png" onclick="controlPlayback('/previous_song')">
+                <img class = "playback-icon" type="image" src="https://i.ibb.co/y6TW3zH/pause.png" onclick="togglePlayPause(this)">
+                <img class = "playback-icon" type="image" src="https://i.ibb.co/T4Tq6ZZ/fast-Forward.png" onclick="controlPlayback('/skip_song')">
             </div>
             
-            <button onclick="controlPlayback('/volume_down')">Volume Down</button>
+            <img class = "playback-icon" type="image" src="https://i.ibb.co/f9pLhzJ/volUp.png" onclick="controlPlayback('/volume_down')">
+
         </div>
         <div id="action-log">
             <p>Last Gesture:</p>
-            <p id="last-action">No actions yet.</p>
+            <p id="last-action">No last actions.</p>
         </div>
     </main>
 
     
 
     <script>
+        let lastKnownAction = 'No last actions.'; // Store the last known action
+        
         async function fetchCurrentSong() {
             const response = await fetch('/current_song');
             const data = await response.json();
             const songInfo = document.getElementById('song-info');
+            const albumImg = document.getElementById('album-img');
             if (response.ok) {
                 songInfo.textContent = `Now Playing: \n ${data.song} by ${data.artist}`;
+                albumImg.innerHTML = `<img src="${data.album_img}" id = "album-img-img" alt="Album art for ${data.album}" width="150" height="150">`;
             } else {
                 songInfo.textContent = data.error || 'Unable to fetch current song.';
             }
@@ -115,6 +118,38 @@
             lastAction.textContent = data.status || data.error;
             fetchCurrentSong();
         }
+
+            // Function to fetch and update the last action
+        function fetchLastAction() {
+            fetch('/last_action')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.last_action) {
+                        lastKnownAction = data.last_action; // Update last known action
+                    }
+                    document.getElementById('last-action').textContent = lastKnownAction;
+                })
+                .catch(error => {
+                    console.error('Error fetching last action:', error);
+                });
+        }
+
+        function togglePlayPause(button) {
+            const isPlaying = button.src.includes('pause.png');
+            if (isPlaying) {
+                button.src = "https://i.ibb.co/VqJKg9K/play.png"; // Play button image URL
+                button.onclick = () => togglePlayPause(button);
+                // controlPlayback('/pause'); 
+            } else {
+                button.src = "https://i.ibb.co/y6TW3zH/pause.png"; // Pause button image URL
+                button.onclick = () => togglePlayPause(button);
+                // controlPlayback('/play'); 
+            }
+            controlPlayback('/play_pause');
+        }
+
+        // Call fetchLastAction every 2 seconds to keep it updated
+        setInterval(fetchLastAction, 2000);
 
         // Fetch the current song on page load
         fetchCurrentSong();
