@@ -7,7 +7,7 @@ arduino_port = '/dev/tty.usbmodem1101'
 baud_rate = 9600  # Match the Arduino's baud rate
 
 
-flask_url = "http://localhost:8080/"
+flask_url = "http://localhost:8000"
 
 # Initialize the serial connection
 try:
@@ -30,7 +30,7 @@ try:
             data = {"distance": line}
 
             # Send data to Flask backend
-            response = requests.post(flask_url, json=data)
+            response = requests.post(f"{flask_url}/receive_data", json=data)
             print(f"Sent to Flask, response: {response.json()}")
 except KeyboardInterrupt:
     print("Exiting...")
