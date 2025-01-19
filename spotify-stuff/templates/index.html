@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Tune</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1db954;
+            padding: 20px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        #song-info {
+        margin-bottom: 20px;
+        text-align: center;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .controls button {
+            background-color: #1db954;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .controls button:hover {
+            background-color: #14833b;
+        }
+        #action-log {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #cccccc;
+        }
+        .playback-icon {
+            cursor: pointer;   
+        }
+        .playback-icon:hover {
+            transform: scale(1.2); 
+            transition: transform 0.1s ease-in-out; 
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Spotify Controller</h1>
+    </header>
+    <main>
+        <div id="song-info">Loading current song...</div>
+        <div class="controls">
+            <!-- wrik image: https://shorturl.at/JSlKi-->
+
+            <img class = "playback-icon" type="image" src="https://shorturl.at/JSlKi" onclick="controlPlayback('/play_pause')">
+            
+            <button onclick="controlPlayback('/volume_up')">Volume Up</button>
+            
+            <div class="centre style:flex">
+                <button onclick="controlPlayback('/previous_song')">Previous</button>
+                <button onclick="controlPlayback('/play_pause')">Play/Pause</button>
+                <button onclick="controlPlayback('/skip_song')">Next</button>
+            </div>
+            
+            <button onclick="controlPlayback('/volume_down')">Volume Down</button>
+        </div>
+        <div id="action-log">
+            <p>Last Gesture:</p>
+            <p id="last-action">No actions yet.</p>
+        </div>
+    </main>
+
+    
+
+    <script>
+        async function fetchCurrentSong() {
+            const response = await fetch('/current_song');
+            const data = await response.json();
+            const songInfo = document.getElementById('song-info');
+            if (response.ok) {
+                songInfo.textContent = `Now Playing: \n ${data.song} by ${data.artist}`;
+            } else {
+                songInfo.textContent = data.error || 'Unable to fetch current song.';
+            }
+        }
+
+        async function controlPlayback(endpoint) {
+            const response = await fetch(endpoint, { method: 'POST' });
+            const data = await response.json();
+            const actionLog = document.getElementById('action-log');
+            const newLogEntry = document.createElement('p');
+            const lastAction = document.getElementById('last-action');
+            lastAction.textContent = data.status || data.error;
+            fetchCurrentSong();
+        }
+
+        // Fetch the current song on page load
+        fetchCurrentSong();
+    </script>
+</body>
+</html>
