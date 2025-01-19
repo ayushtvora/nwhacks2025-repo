@@ -1,3 +1,4 @@
 spotify-stuff/.env
 spotify-stuff/.cache
 env/
+.venv
