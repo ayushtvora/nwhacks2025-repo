@@ -74,10 +74,10 @@ def play_pause():
         playback = sp.current_playback()
         if playback and playback['is_playing']:
             sp.pause_playback()
-            last_action["actions"] = actions[3]
+            last_action["action"] = actions[3]
             return jsonify({'status': f'{last_action["actions"]}'})
         sp.start_playback()
-        last_action["actions"] = actions[4]
+        last_action["action"] = actions[4]
         return jsonify({'status': f'{last_action["actions"]}'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -88,7 +88,7 @@ def skip_song():
     global last_action
     try:
         sp.next_track()
-        last_action["actions"] = actions[1]
+        last_action["action"] = actions[1]
         return jsonify({'status': f'{last_action["actions"]}'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -99,7 +99,7 @@ def previous_song():
     global last_action
     try:
         sp.previous_track()
-        last_action["actions"] = actions[2]
+        last_action["action"] = actions[2]
         return jsonify({'status': f'{last_action["actions"]}'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -131,7 +131,7 @@ def volume_down():
             current_volume = playback['device']['volume_percent']
             new_volume = max(current_volume - 10, 0)
             sp.volume(new_volume)
-            last_action["actions"] = actions[6]
+            last_action["action"] = actions[6]
             return jsonify({'status': f'{last_action["actions"]}'})
         return jsonify({'error': 'No active playback found.'}), 404
     except Exception as e:
