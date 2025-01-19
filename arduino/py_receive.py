@@ -15,14 +15,16 @@ baud_rate = 9600  # Match the Arduino's baud rate
 flask_url = "http://localhost:8000"
 
 buffer = []
+hand_flag = False
 N = 10
-N_local = 3
-THRESHOLD = 10
+THRESHOLD = 5
+SMALL = 40
+PAUSE_SMALL =  4
 # 0: no action, 1: next, 2: previous, 3: pause, 4: play, 5: volume up, 6: volume down
 actions = {0: "No action", 1: "Next", 2: "Previous", 3: "Pause", 4: "Play", 5: "Volume up", 6: "Volume down"}
 last_action =  {"action": actions[0], "time": datetime.now()}
 
-action_time_threshold = timedelta(seconds=1)
+action_time_threshold = timedelta(seconds=2)
 
 prev_distance_time = datetime.now()
 
@@ -41,7 +43,12 @@ try:
     while True:
         if ser.in_waiting > 0:
             # Read a line from the serial port
-            line = float(ser.readline().decode('utf-8').strip())
+            try:
+                line = float(ser.readline().decode('utf-8').strip())
+                if line > SMALL:
+                    continue
+            except ValueError:
+                continue
             # Print the data or use it in your application
             # print(f"Distance: {line} cm")
 
@@ -51,7 +58,6 @@ try:
             # Send data to Flask backend
             # response = requests.post(f"{flask_url}/receive_data", json=data)
             # print(f"Sent to Flask, response: {response.json()}")
-
             
             current_time = datetime.now()
             if len(buffer) < N:
@@ -72,23 +78,35 @@ try:
 
             smoothed = gaussian_filter1d(buffer_np, sigma=2)
 
-            local = smoothed[-N_local:]
-            local_avg = np.mean(local)
-            abs_avg = np.mean(smoothed)
+            # local = smoothed[-N_local:]
+            # local_avg = np.mean(local)
+            # abs_avg = np.mean(smoothed)
 
-            diff = local_avg - abs_avg
-            deriv = np.mean(np.diff(local))
+            avg = np.mean(smoothed)
 
-            print("{last_action} diff: {diff}")
+
+            # diff = local_avg - abs_avg
+            deriv = smoothed[N//2:] - smoothed[:-N//2]
+            deriv = np.mean(deriv)
+            # if avg < SMALL:
+            #     hand_flag = True
+            # else:
+            #     hand_flag = False
+
+            print(f'{buffer_np}')
+            print(f'{smoothed}')
+            print(f"{last_action['action']}, deriv: {round(deriv,2)}, abs_avg: {round(avg, 2)}")
+
+            # print(smoothed)
 
             predicted_action = ""
 
-            if diff > THRESHOLD and deriv > 0:
-                predicted_action = actions[1]
-            elif diff < -THRESHOLD and deriv < 0:
-                predicted_action = actions[2]
-            elif -THRESHOLD < diff and diff < THRESHOLD:
+            if avg < PAUSE_SMALL: # pause
                 predicted_action = actions[3]
+            elif deriv > THRESHOLD: # up -> next
+                predicted_action = actions[1]
+            elif deriv < -THRESHOLD: # down -> previous
+                predicted_action = actions[2]
             else:
                 predicted_action = actions[0]
 
@@ -101,7 +119,7 @@ try:
             last_action["time"] = current_time
 
             data = {'status': f'{last_action["action"]}'}
-            print("data: ", data)
+            # print("data: ", data)
             # response = requests.post(f"{flask_url}/receive_data", json=data)
 
             match last_action["action"]:
