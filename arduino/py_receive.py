@@ -15,7 +15,7 @@ flask_url = "http://localhost:8000"
 buffer = []
 N = 8
 THRESHOLD = 4
-SMALL = 100
+SMALL = 50
 PAUSE_SMALL =  6
 do_nothing_count = 0
 # 0: no action, 1: next, 2: previous, 3: pause, 4: play, 5: volume up, 6: volume down
@@ -43,8 +43,6 @@ try:
             # Read a line from the serial port
             try:
                 line = float(ser.readline().decode('utf-8').strip())
-                if line > SMALL:
-                    continue
             except ValueError:
                 continue
 
@@ -114,9 +112,9 @@ try:
                         print("next")
                         previous_flag = False
                         response = requests.post(f"{flask_url}/skip_song")
-                    # case "Previous":
-                    #     print("previous")
-                    #     response = requests.post(f"{flask_url}/previous_song")
+                    case "Previous":
+                        print("previous")
+                        response = requests.post(f"{flask_url}/previous_song")
                     case "Pause":
                         print("pause")
                         previous_flag = False
@@ -124,30 +122,6 @@ try:
                     case _:
                         continue
 
-
-
-            # last_action["action"] = predicted_action
-            # last_action["time"] = current_time
-
-            # data = {'status': f'{last_action["action"]}'}
-
-            # # print(f"{avg}")
-
-            # match last_action["action"]:
-            #     case "Next": 
-            #         print("next")
-            #         print(current_time - last_action["time"])
-            #         response = requests.post(f"{flask_url}/skip_song")
-            #     case "Previous":
-            #         print("previous")
-            #         print(current_time - last_action["time"])
-            #         response = requests.post(f"{flask_url}/previous_song")
-            #     case "Pause":
-            #         print("pause")
-            #         print(current_time - last_action["time"])
-            #         response = requests.post(f"{flask_url}/play_pause")
-            #     case _:
-            #         continue
 
 
 
