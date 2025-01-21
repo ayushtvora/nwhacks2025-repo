@@ -68,7 +68,7 @@
 </head>
 <body>
     <header>
-        <h1>Spotify Controller</h1>
+        <h1>SpotiPaw</h1>
     </header>
     <main>
         <div id="song-info">Loading current song...</div>
@@ -123,21 +123,6 @@
             fetchCurrentSong();
         }
 
-            // Function to fetch and update the last action
-        // function fetchLastAction() {
-        //     fetch('/last_action')
-        //         .then(response => response.json())
-        //         .then(data => {
-        //             if (data.last_action) {
-        //                 lastKnownAction = data.last_action; // Update last known action
-        //             }
-        //             document.getElementById('last-action').textContent = lastKnownAction;
-        //         })
-        //         .catch(error => {
-        //             console.error('Error fetching last action:', error);
-        //         });
-        // }
-
         function fetchLastAction() {
             fetch('/last_action')
                 .then(response => response.json())
@@ -158,6 +143,7 @@
                 .catch(error => {
                     console.error('Error fetching last action:', error);
                 });
+                fetchCurrentSong();
             }
 
         function togglePlayPause(button) {
