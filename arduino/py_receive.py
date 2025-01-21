@@ -37,8 +37,6 @@ try:
             # Read a line from the serial port
             try:
                 line = float(ser.readline().decode('utf-8').strip())
-                # if line > SMALL:
-                #     continue
             except ValueError:
                 continue
 
@@ -92,7 +90,6 @@ try:
                         response = requests.post(f"{flask_url}/skip_song")
                     case "Previous":
                         print("previous")
-                        print(buffer)
                         response = requests.post(f"{flask_url}/previous_song")
                     case "Pause":
                         print("pause/play")
